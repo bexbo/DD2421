@@ -11,15 +11,20 @@ import matplotlib.pyplot as plt
 
 #%% Functions
 def linear_kernel(x, y):    
-    return np.power((np.dot(x, y) +1),3)
+    return np.dot(x, y)
 
 def objective(alpha):
      
 #    x = [[ alpha[i] * alpha[j] * P[i][j] for i in range(N)] for j in range(N)]
-    x = 0.5 * np.sum(np.dot(alpha,P)) - np.sum(alpha)
+    x = 0
+    for i in range(len(alpha)):
+        for j in range(len(alpha)):
+
+            x += alpha[i] * alpha[j] * P[i][j] * 0.5
+
+        x -= alpha[i]
     return x
-#    alpha_i_sum = np.sum(a)
-    
+
 def zerofun(x):
     return np.sum(np.dot(x, target))
 
@@ -82,15 +87,16 @@ def plot_dec_bound(classA, classB):
     plt.plot([p[0] for p in classB],
              [p[1] for p in classB],
              'r.')
-    plt.savefig('svmplot.pdf') #Save a copy in file
+    plt.show()
+
 #%% Script
-N = 100
+N = 10
 #B = [(0, C) for b in range(N)] # upper bound
 classA, classB, inputs, target = get_data(N)
 N=N*4
 start = np.zeros(N)
 
-B = [(0, 10000000) for b in range(N)] # no upper bound
+B = [(0, None) for b in range(N)] # no upper bound
 constraint = {'type': 'eq', 'fun': zerofun}
 P = get_p(inputs, target, N)
 ret = minimize(objective, start, bounds = B, constraints = constraint)
@@ -100,11 +106,12 @@ alpha = ret['x']
 threshold = 0.000001
 support = []
 for i in range(len(alpha)):
-    if alpha[i] > 10e-5:
+    if alpha[i] > 10e-5 :
         support.append((inputs[i][0], inputs[i][1], target[i], alpha[i]))
-        
-b = get_b(support)
 
+
+b = get_b(support)
+print(support)
 #ind = indicator(inputs[0], support)
 #plot()
 plot_dec_bound(classA, classB)
