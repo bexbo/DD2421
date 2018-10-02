@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 #%% Functions
 def linear_kernel(x, y):    
-    return np.dot(x, y)
+    return np.power((np.dot(x, y) +1),3)
 
 def objective(alpha):
      
@@ -19,8 +19,9 @@ def objective(alpha):
     x = 0.5 * np.sum(np.dot(alpha,P)) - np.sum(alpha)
     return x
 #    alpha_i_sum = np.sum(a)
+    
 def zerofun(x):
-    return 0
+    return np.sum(np.dot(x, target))
 
 def get_data(N):
     np.random.seed(100)
@@ -35,7 +36,7 @@ def get_data(N):
     random.shuffle(permute)
     inputs = inputs[permute, :]
     targets = targets[permute]
-    return inputs, targets
+    return classA, classB, inputs, targets
     
 def plot(classA, classB):
     plt.plot([p[0] for p in classA],
@@ -67,7 +68,7 @@ def indicator(x,y):
         ind += support[i][3]*support[i][2]*linear_kernel([x,y], support[i][0:2])
     return ind
     
-def plot_dec_bound():
+def plot_dec_bound(classA, classB):
     xgrid = np.linspace(-5,5)
     ygrid = np.linspace(-4,4)
     
@@ -75,15 +76,24 @@ def plot_dec_bound():
     plt.contour(xgrid, ygrid, grid, (-1.0, 0.0, 1.0), 
                 colors=('red','black','blue'),
                 linewidth=(1,3,1))
+    plt.plot([p[0] for p in classA],
+             [p[1] for p in classA],
+             'b.')
+    plt.plot([p[0] for p in classB],
+             [p[1] for p in classB],
+             'r.')
+    plt.savefig('svmplot.pdf') #Save a copy in file
 #%% Script
-N = 10
-start = np.zeros(N)
+N = 100
 #B = [(0, C) for b in range(N)] # upper bound
-inputs, target = get_data(N)
-B = [(0, None) for b in range(N)] # no upper bound
+classA, classB, inputs, target = get_data(N)
+N=N*4
+start = np.zeros(N)
+
+B = [(0, 10000000) for b in range(N)] # no upper bound
 constraint = {'type': 'eq', 'fun': zerofun}
 P = get_p(inputs, target, N)
-ret = minimize(objective, start, bounds = B)#, constraints = constraint)
+ret = minimize(objective, start, bounds = B, constraints = constraint)
 alpha = ret['x']
 #plot(classA, classB)
 #data = np.concatenate((inputs,target))
@@ -97,8 +107,8 @@ b = get_b(support)
 
 #ind = indicator(inputs[0], support)
 #plot()
-plot_dec_bound()
-plt.show()
+plot_dec_bound(classA, classB)
+#plt.show()
 t = 0
 K = 0
     
