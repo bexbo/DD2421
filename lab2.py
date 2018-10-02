@@ -17,7 +17,7 @@ def objective(alpha):
      
 #    x = [[ alpha[i] * alpha[j] * P[i][j] for i in range(N)] for j in range(N)]
     x = 0.5 * np.sum(np.dot(alpha,P)) - np.sum(alpha)
-    return 1
+    return x
 #    alpha_i_sum = np.sum(a)
 def zerofun(x):
     return 0
@@ -56,7 +56,7 @@ def get_p(inputs, target, N):
             P[i][j] = (target[i]) * (target[j]) * linear_kernel([(inputs[i])[0], (inputs[i])[1]], [(inputs[j])[0], (inputs[j])[1]])
     return P
 #%% Script
-N = 1000
+N = 100
 start = np.zeros(N)
 #B = [(0, C) for b in range(N)] # upper bound
 inputs, target = get_data(N)
@@ -68,6 +68,11 @@ alpha = ret['x']
 #plot(classA, classB)
 #data = np.concatenate((inputs,target))
 threshold = 0.000001
+support = []
+for i in range(len(alpha)):
+    if alpha[i] > 10e-5:
+        support.append((inputs[i][0], inputs[i][1], target[i], alpha[i]))
+        
 
 t = 0
 K = 0
