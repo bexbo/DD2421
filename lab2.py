@@ -46,7 +46,7 @@ def plot(classA, classB):
              'r.')
     plt.axis('equal') #Force same scale on both axes
     plt.savefig('svmplot.pdf') #Save a copy in file
-    plt.show() #Show the plot on screen
+#    plt.show() #Show the plot on screen
     
 def get_p(inputs, target, N):
 #    N = len(data)
@@ -55,8 +55,28 @@ def get_p(inputs, target, N):
         for j in range(0, N):
             P[i][j] = (target[i]) * (target[j]) * linear_kernel([(inputs[i])[0], (inputs[i])[1]], [(inputs[j])[0], (inputs[j])[1]])
     return P
+
+def get_b(support):
+    s = support[0]
+    b = np.sum([support[i][3] * support[i][2] * linear_kernel([support[i][0],support[i][1]],[s[0],s[1] - s[2]])  for i in range(len(support))])
+    return b
+
+def indicator(x,y):
+    ind = 0
+    for i in range(len(support)):
+        ind += support[i][3]*support[i][2]*linear_kernel([x,y], support[i][0:2])
+    return ind
+    
+def plot_dec_bound():
+    xgrid = np.linspace(-5,5)
+    ygrid = np.linspace(-4,4)
+    
+    grid = np.array([[indicator(x,y) for x in xgrid] for y in ygrid])
+    plt.contour(xgrid, ygrid, grid, (-1.0, 0.0, 1.0), 
+                colors=('red','black','blue'),
+                linewidth=(1,3,1))
 #%% Script
-N = 100
+N = 10
 start = np.zeros(N)
 #B = [(0, C) for b in range(N)] # upper bound
 inputs, target = get_data(N)
@@ -73,7 +93,12 @@ for i in range(len(alpha)):
     if alpha[i] > 10e-5:
         support.append((inputs[i][0], inputs[i][1], target[i], alpha[i]))
         
+b = get_b(support)
 
+#ind = indicator(inputs[0], support)
+#plot()
+plot_dec_bound()
+plt.show()
 t = 0
 K = 0
     
