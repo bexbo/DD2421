@@ -11,17 +11,23 @@ import matplotlib.pyplot as plt
 
 #%% Functions
 def linear_kernel(x, y):    
-    return np.power((np.dot(x, y) +1),3)
+    return (np.dot(x,y)+1)
 
 def objective(alpha):
      
-#    x = [[ alpha[i] * alpha[j] * P[i][j] for i in range(N)] for j in range(N)]
-    x = 0.5 * np.sum(np.dot(alpha,P)) - np.sum(alpha)
+    x = 0.5 * np.sum([[ alpha[i] * alpha[j] * P[i][j] for i in range(N)] - alpha[j] for j in range(N)])
+#    x = 0.5 * np.sum(np.dot(alpha,P)) - np.sum(alpha)
+    
+#    for i in range(N):
+#        for j in range(N):
+            
+    
     return x
 #    alpha_i_sum = np.sum(a)
     
 def zerofun(x):
-    return np.sum(np.dot(x, target))
+#    return np.sum([np.dot(x[i], target[i]) for i in range(len(x))])
+    return np.dot(x,target)
 
 def get_data(N):
     np.random.seed(100)
@@ -84,13 +90,12 @@ def plot_dec_bound(classA, classB):
              'r.')
     plt.savefig('svmplot.pdf') #Save a copy in file
 #%% Script
-N = 100
-#B = [(0, C) for b in range(N)] # upper bound
+N = 10
 classA, classB, inputs, target = get_data(N)
 N=N*4
 start = np.zeros(N)
-
-B = [(0, 10000000) for b in range(N)] # no upper bound
+C = 1
+B = [(0, C) for b in range(N)] 
 constraint = {'type': 'eq', 'fun': zerofun}
 P = get_p(inputs, target, N)
 ret = minimize(objective, start, bounds = B, constraints = constraint)
@@ -109,9 +114,7 @@ b = get_b(support)
 #plot()
 plot_dec_bound(classA, classB)
 #plt.show()
-t = 0
-K = 0
-    
+
     
     
     
